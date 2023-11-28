@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  dynamodb:
+    image: amazon/dynamodb-local
+    ports:
+      - "8000:8000"
+    environment:
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=admin
+      - AWS_REGION=us-east-1
+    command: ["-jar", "DynamoDBLocal.jar", "-sharedDb"]
+
+  web:
+    build:
+      context: ./kanban-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - dynamodb
+
+  django:
+    build:
+      context: ./kanban-backend/kanban_backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - dynamodb
+    environment:
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=admin
+      - AWS_DEFAULT_REGION=us-east-1
